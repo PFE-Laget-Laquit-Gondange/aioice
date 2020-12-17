@@ -108,6 +108,11 @@ def validate_remote_candidate(candidate: Candidate) -> Candidate:
     """
     if candidate.type not in ["host", "relay", "srflx"]:
         raise ValueError('Unexpected candidate type "%s"' % candidate.type)
+    if candidate.host.endswith(".local"):
+        try:
+            candidate.host = socket.gethostbyname(candidate.host)
+        except socket.gaierror:
+            raise ValueError('mDNS %s not found in local network' % candidate.host)
     ipaddress.ip_address(candidate.host)
     return candidate
 
